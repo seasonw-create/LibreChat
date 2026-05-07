@@ -676,6 +676,37 @@ const OpenAIChatCompletionController = async (req, res) => {
 
     const runAgents = [primaryConfig, ...handoffAgentConfigs.values()];
 
+/* =========================================================
+ 🔥 FINAL LLM INPUT DEBUG (SYSTEM + USER + TOOLS + SKILLS)
+========================================================= */
+const fullPromptDump = {
+  agentId,
+  model: agentId,
+
+  // what user sent
+  rawMessages: openaiMessages,
+
+  // what LibreChat transformed into (IMPORTANT)
+  formattedMessages,
+
+  // skill / memory / summarization context
+  initialSummary,
+
+  // token indexing used internally for trimming
+  indexTokenCountMap,
+
+  // tool registry snapshot (VERY useful for debugging tools)
+  toolSetKeys: Object.keys(toolSet || {}),
+
+  // agent config snapshot
+  agentProvider: agent.provider,
+  modelParameters: agent.model_parameters,
+};
+
+console.log("\n================ LLM FINAL PROMPT DUMP ================\n");
+console.dir(fullPromptDump, { depth: null });
+console.log("\n=======================================================\n");
+
     const run = await createRun({
       agents: runAgents,
       messages: formattedMessages,
